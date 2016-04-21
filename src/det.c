@@ -13,18 +13,20 @@ int main(int argc, char *argv[]){
   	struct timeval start, end;
   	gettimeofday(&start, NULL);
 
+
   	//Bloque paralelo
 	#pragma omp parallel num_threads(variables.n_threads)
 	{
-		determinant = 0;
+
 		//Una sola hebra va a crear las tareas
 		#pragma omp single
 		{
 			int i;
+			float* det_array = (float*)malloc(sizeof(float)*variables.matrix_size);
 		    for (i = 0; i < variables.matrix_size; i++)
 		    {
 		    	//Crea una tarea para cada elemento de la fila 0
-		    	#pragma omp task untied shared(determinant)
+		    	#pragma omp task untied
 		    	{	
 		    		int j;
 		    		int *col_vector = (int*)malloc(sizeof(int)*variables.matrix_size);
@@ -32,12 +34,18 @@ int main(int argc, char *argv[]){
 				        col_vector[j] = 1;
 				    }
 		    		col_vector[i] = 0;
-		    		determinant += pow(-1.0, i)*buffer[i]*calculate_det(buffer, variables.matrix_size, variables.matrix_size-1, 1, col_vector, variables.lvl-1);
+		    		det_array[i]= pow(-1.0, i)*buffer[i]*calculate_det(buffer, variables.matrix_size, variables.matrix_size-1, 1, col_vector, variables.lvl-1);
 		    		free(col_vector);
 		    	}
+		    	
 		    }
 		    //Barrera para que las todas tareas sean ejecutadas
 		    #pragma omp taskwait
+		    for (i = 0; i < variables.matrix_size; i++)
+			{
+				determinant+=det_array[i];
+			}
+			free(det_array);
 		}
 	}
 

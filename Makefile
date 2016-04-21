@@ -24,4 +24,4 @@ clean:
 run:
 	@ clear
 	@ echo "Determinant OPENMPI-Task"
-	@ ./bin/det -i ./input/matriz1010.raw -N 10 -H 4 -L 0
+	@ ./bin/det -i ./input/matriz1010.raw -N 10 -H 10 -L 2

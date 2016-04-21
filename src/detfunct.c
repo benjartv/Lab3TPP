@@ -53,6 +53,7 @@ float* read_input(char* input_file, int matrix_size){
 float calculate_det(float *matrix, int mt_size, int mn_size, int n_row, int*col, int lvl){
 	int i;
 	float determinant;
+	float* det_array;
 	if (mn_size == 2){
 		int c1 = -1, c2;
 		for (i = 0; i < mt_size; i++){
@@ -67,13 +68,14 @@ float calculate_det(float *matrix, int mt_size, int mn_size, int n_row, int*col,
 	}
 	else{
 		determinant = 0;
-		int sub = 0;	
-		for (i = 0; i < mt_size; i++)
+		int sub = 0;
+		if (lvl >= 0)
 		{
-			if (col[i] == 1){
-				if (lvl >= 0)
-				{
-					#pragma omp task untied shared(determinant)
+			det_array = (float*)malloc(sizeof(float)*mn_size);
+			for (i = 0; i < mt_size; i++)
+			{
+				if (col[i] == 1){
+					#pragma omp task untied
 					{
 						int *col_vector = (int*)malloc(sizeof(int)*mt_size);
 						int j;
@@ -81,21 +83,31 @@ float calculate_det(float *matrix, int mt_size, int mn_size, int n_row, int*col,
 							col_vector[j] = col[j];
 						}
 						col_vector[i] = 0;
-						determinant += pow(-1.0, sub)*matrix[mt_size*n_row + i]*calculate_det(matrix, mt_size, mn_size-1, n_row+1, col_vector, lvl-1);
+						det_array[sub]= pow(-1.0, sub)*matrix[mt_size*n_row + i]*calculate_det(matrix, mt_size, mn_size-1, n_row+1, col_vector, lvl-1);
 						free(col_vector);
 					}
+					sub++;
 				}
-				else{
+			}
+			#pragma omp taskwait
+			for (i = 0; i < mn_size; i++)
+			{
+				determinant+=det_array[i];
+			}
+			free(det_array);
+		}
+		else
+		{
+			for (i = 0; i < mt_size; i++)
+			{
+				if (col[i] == 1){
 					col[i] = 0;
 					determinant += pow(-1.0, sub)*matrix[mt_size*n_row + i]*calculate_det(matrix, mt_size, mn_size-1, n_row+1, col, lvl);
 					//Desmarcar columna para siguiente iteración
 					col[i] = 1;
+					sub++;
 				}
-				sub++;
 			}
-		}
-		if (lvl >= 0){
-			#pragma omp taskwait
 		}
 	}
 	return(determinant);
