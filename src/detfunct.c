@@ -46,8 +46,8 @@ float* read_input(char* input_file, int matrix_size){
 	para que la siguiente iteración pueda considerarla al momento de calcular el determinante del nuevo
 	minor. En caso de que el nivel de profundidad sea igual o mayor a 0, se creará una tarea por cada 
 	elemento de esa fila, con su respectivo arreglo de columnas y luego se llamara a la función
-	de manera recursiva. Al finalizar todas las iteraciones en caso de haber creado tareas se detendrán
-	en una barrera.
+	de manera recursiva. Al finalizar todas las tareas se sumaran los valores parciales obtenidos por
+	cada una.
 */
 
 float calculate_det(float *matrix, int mt_size, int mn_size, int n_row, int*col, int lvl){
@@ -71,6 +71,7 @@ float calculate_det(float *matrix, int mt_size, int mn_size, int n_row, int*col,
 		int sub = 0;
 		if (lvl >= 0)
 		{
+			//Arreglo para almacenar resultados de las tareas
 			det_array = (float*)malloc(sizeof(float)*mn_size);
 			for (i = 0; i < mt_size; i++)
 			{

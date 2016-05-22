@@ -22,6 +22,7 @@ int main(int argc, char *argv[]){
 		#pragma omp single
 		{
 			int i;
+			//Arreglo para almacenar los resultados de cada task
 			float* det_array = (float*)malloc(sizeof(float)*variables.matrix_size);
 		    for (i = 0; i < variables.matrix_size; i++)
 		    {
@@ -41,6 +42,7 @@ int main(int argc, char *argv[]){
 		    }
 		    //Barrera para que las todas tareas sean ejecutadas
 		    #pragma omp taskwait
+		    //Suma de resultados parciales
 		    for (i = 0; i < variables.matrix_size; i++)
 			{
 				determinant+=det_array[i];
