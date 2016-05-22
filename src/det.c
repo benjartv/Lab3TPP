@@ -24,7 +24,7 @@ int main(int argc, char *argv[]){
 		    for (i = 0; i < variables.matrix_size; i++)
 		    {
 		    	//Crea una tarea para cada elemento de la fila 0
-		    	#pragma omp task untied
+		    	#pragma omp task untied shared(determinant)
 		    	{	
 		    		int j;
 		    		int *col_vector = (int*)malloc(sizeof(int)*variables.matrix_size);
